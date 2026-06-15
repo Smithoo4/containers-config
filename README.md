@@ -92,6 +92,7 @@ Podman Volumes (runtime, not in git)
     - **[prometheus-podman-exporter](https://github.com/containers/prometheus-podman-exporter)** — Container exposing Podman container state, health, and resource metrics on `:9882`.
     - **Health checks** — Add `HealthCmd` to every Quadlet `.container` file. Required for `podman auto-update --rollback` to detect and roll back broken images.
     - **[Traefik Metrics](https://doc.traefik.io/traefik/observability/metrics/prometheus/)** — Built-in Prometheus metrics on `:8080/metrics`, enabled with `metrics: prometheus: {}` in `traefik.yml`.
+    - **CrowdSec Prometheus metrics** — Engine exposes metrics on `:6060/metrics` (decisions, alerts, scenario counts). Integrate when CrowdSec is deployed in Phase 4.
 
 ### Phase X: Backup
   - [ ] Backup script using Restic (pipe `podman volume export` directly into Restic for encrypted, deduplicated backups)
