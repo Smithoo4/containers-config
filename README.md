@@ -69,3 +69,18 @@ Podman Volumes (runtime, not in git)
 
 ### Phase X: Backup
   - [ ] Backup script using Restic (pipe `podman volume export` directly into Restic for encrypted, deduplicated backups)
+
+### Phase X: Monitoring
+ - [ ] Set up a monitoring stack to track OS health, container health, and service availability.
+    - **Metrics collection options**
+      - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) + [vmalert](https://docs.victoriametrics.com/vmalert/) + [Alertmanager](https://github.com/prometheus/alertmanager) — Lightweight, low RAM, built-in long-term storage. Already used in ISP monitoring stack.
+      - [Prometheus](https://prometheus.io/) + [Alertmanager](https://github.com/prometheus/alertmanager) — Industry standard, largest ecosystem and documentation.
+      - [Beszel](https://github.com/henrygd/beszel) — All-in-one lightweight alternative with built-in container monitoring, alerting, and dashboard. Minimal setup.
+    - **[prometheus-node_exporter](https://github.com/prometheus/node_exporter)** - Already installed on the MicroOS base exposing OS metrics on `:9100`.
+    - **[prometheus-podman-exporter](https://github.com/containers/prometheus-podman-exporter)** — Container exposing Podman container state, health, and resource metrics on `:9882`.
+    - **Health checks** — Add `HealthCmd` to every Quadlet `.container` file. Required for `podman auto-update --rollback` to detect and roll back broken images.
+
+
+
+
+
