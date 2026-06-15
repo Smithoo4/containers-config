@@ -8,6 +8,10 @@ api:
   dashboard: true
   insecure: false  # Dashboard is only accessible via Traefik routing
 
+# Metrics
+metrics:
+  prometheus: {}
+
 # Entry Points
 entryPoints:
   web:
