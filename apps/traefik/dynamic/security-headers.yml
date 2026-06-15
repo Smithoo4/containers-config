@@ -8,5 +8,7 @@ http:
         permissionsPolicy: "camera=(), microphone=(), geolocation=()"
         stsSeconds: 63072000
         stsIncludeSubdomains: true
-        stsPreload: true
         forceSTSHeader: true
+        customResponseHeaders:
+          server: ""
+          X-Powered-By: ""
