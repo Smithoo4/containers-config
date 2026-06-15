@@ -66,3 +66,6 @@ Podman Volumes (runtime, not in git)
  - [ ] Restore script (Bash script to create symlinked, podman secrets, Volumes, etc.)
  - [ ] Backup script (Bash script to export podman volumes to ~/backups/)
  - [ ] Update Restore script to incorporate Backup output for volume restoration
+
+### Phase X: Backup
+  - [ ] Backup script using Restic (pipe `podman volume export` directly into Restic for encrypted, deduplicated backups)
