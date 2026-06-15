@@ -89,6 +89,10 @@ Podman Volumes (runtime, not in git)
       - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) + [vmalert](https://docs.victoriametrics.com/vmalert/) + [Alertmanager](https://github.com/prometheus/alertmanager) — Lightweight, low RAM, built-in long-term storage.
       - [Prometheus](https://prometheus.io/) + [Alertmanager](https://github.com/prometheus/alertmanager) — Industry standard, largest ecosystem and documentation.
       - [Beszel](https://github.com/henrygd/beszel) — All-in-one lightweight alternative with built-in container monitoring, alerting, and dashboard. Minimal setup.
+    - [ ] **Alerting / Notifications**
+      - Configure Alertmanager (or equivalent) for notifications.
+      - Support SMTP (email), with future option to extend (e.g. Telegram, Discord, Slack).
+      - Define basic alert rules (e.g. host down, container unhealthy, high CPU/memory, failed updates).
     - [ ] Identify and add monitoring runtime data (metrics database) to Phase 3 backup/restore scripts if retention matters
     - [ ] **[prometheus-node_exporter](https://github.com/prometheus/node_exporter)** - Already installed on the MicroOS base exposing OS metrics on `:9100`.
     - [ ] **[prometheus-podman-exporter](https://github.com/containers/prometheus-podman-exporter)** — Container exposing Podman container state, health, and resource metrics on `:9882`.
