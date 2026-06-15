@@ -81,18 +81,33 @@ Podman Volumes (runtime, not in git)
     - [ ] Custom scenario to block IP-only / unknown SNI requests.
 - [ ] Whitelist own IPs to prevent self-banning during testing.
 - [ ] Evaluate CrowdSec Console — cloud dashboard + community blocklist.
+- [ ] Identify and add CrowdSec runtime data (database, bouncer API keys) to Phase 3 backup/restore scripts.
 
-### Phase X: Monitoring
+### Phase 5: Monitoring
  - [ ] Set up a monitoring stack to track OS health, container health, and service availability.
-    - **Metrics collection options**
+    - [ ]  **Metrics collection options**
       - [VictoriaMetrics](https://github.com/VictoriaMetrics/VictoriaMetrics) + [vmalert](https://docs.victoriametrics.com/vmalert/) + [Alertmanager](https://github.com/prometheus/alertmanager) — Lightweight, low RAM, built-in long-term storage.
       - [Prometheus](https://prometheus.io/) + [Alertmanager](https://github.com/prometheus/alertmanager) — Industry standard, largest ecosystem and documentation.
       - [Beszel](https://github.com/henrygd/beszel) — All-in-one lightweight alternative with built-in container monitoring, alerting, and dashboard. Minimal setup.
-    - **[prometheus-node_exporter](https://github.com/prometheus/node_exporter)** - Already installed on the MicroOS base exposing OS metrics on `:9100`.
-    - **[prometheus-podman-exporter](https://github.com/containers/prometheus-podman-exporter)** — Container exposing Podman container state, health, and resource metrics on `:9882`.
-    - **Health checks** — Add `HealthCmd` to every Quadlet `.container` file. Required for `podman auto-update --rollback` to detect and roll back broken images.
-    - **[Traefik Metrics](https://doc.traefik.io/traefik/observability/metrics/prometheus/)** — Built-in Prometheus metrics on `:8080/metrics`, enabled with `metrics: prometheus: {}` in `traefik.yml`.
-    - **CrowdSec Prometheus metrics** — Engine exposes metrics on `:6060/metrics` (decisions, alerts, scenario counts). Integrate when CrowdSec is deployed in Phase 4.
+    - [ ] Identify and add monitoring runtime data (metrics database) to Phase 3 backup/restore scripts if retention matters
+    - [ ] **[prometheus-node_exporter](https://github.com/prometheus/node_exporter)** - Already installed on the MicroOS base exposing OS metrics on `:9100`.
+    - [ ] **[prometheus-podman-exporter](https://github.com/containers/prometheus-podman-exporter)** — Container exposing Podman container state, health, and resource metrics on `:9882`.
+    - [ ] **Health checks** — Add `HealthCmd` to every Quadlet `.container` file. Required for `podman auto-update --rollback` to detect and roll back broken images.
+    - [ ] **[Traefik Metrics](https://doc.traefik.io/traefik/observability/metrics/prometheus/)** — Built-in Prometheus metrics on `:8080/metrics`, enabled with `metrics: prometheus: {}` in `traefik.yml`.
+    - [ ] **CrowdSec Prometheus metrics** — Engine exposes metrics on `:6060/metrics` (decisions, alerts, scenario counts). Integrate when CrowdSec is deployed in Phase 4.
+      
+ ### Phase 6: Authentication & SSO
+- [ ] Evaluate and deploy a self-hosted SSO / Identity Provider.
+    - **Options to evaluate:**
+      - **[Authentik](https://goauthentik.io/)** — Full IdP with OIDC, SAML, LDAP, visual flow editor. Most popular homelab choice, but heavier (PostgreSQL + Redis).
+      - **[Authelia](https://www.authelia.com/) + [lldap](https://github.com/lldap/lldap)** — Lightweight forward-auth with OIDC support. YAML config, minimal resources.
+      - **[Kanidm](https://kanidm.com/)** — Rust-based IdP with built-in LDAP + OIDC. Lightweight and modern.
+      - **[Keycloak](https://www.keycloak.org/)** — Enterprise standard (Red Hat). Steep learning curve but great for learning enterprise IAM.
+- [ ] Implement Traefik forward auth middleware for SSO-protected routes.
+- [ ] Centralized authentication for all services (OIDC, SAML).
+    - Test with Traefik dashboard, monitoring dashboards, or a demo app.
+- [ ] Chain with CrowdSec middleware — CrowdSec (IP reputation) runs before forward auth (SSO check).
+- [ ] Identify and add SSO runtime data (database, secrets, media) to Phase 3 backup/restore scripts. **Critical — losing this means rebuilding all identity config and user accounts.**
 
 ### Phase X: Backup
   - [ ] Backup script using Restic (pipe `podman volume export` directly into Restic for encrypted, deduplicated backups)
