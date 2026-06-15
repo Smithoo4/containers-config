@@ -113,8 +113,53 @@ Podman Volumes (runtime, not in git)
 - [ ] Chain with CrowdSec middleware — CrowdSec (IP reputation) runs before forward auth (SSO check).
 - [ ] Identify and add SSO runtime data (database, secrets, media) to Phase 3 backup/restore scripts. **Critical — losing this means rebuilding all identity config and user accounts.**
 
-### Phase X: Backup
-  - [ ] Backup script using Restic (pipe `podman volume export` directly into Restic for encrypted, deduplicated backups)
+### Phase 7: File Storage & Collaboration
+- [ ] Evaluate and deploy storage/collaboration platform
+    - Options: OpenCloud, Pydio Cells, Nextcloud, Seafile
+- [ ] Authentication & SSO integration
+- [ ] CrowdSec integration (if applicable)
+- [ ] Metrics and monitoring integration
+- [ ] Full-text document search (PDF and Office documents)
+- [ ] Evaluate Office integration (Collabora, OnlyOffice)
+- [ ] Evaluate desktop and mobile applications
+- [ ] Identify and add runtime data (databases, file storage, indexes) to Phase 3 backup/restore scripts (**Critical**)
+
+### Phase 8: Photo Management
+- [ ] Evaluate and deploy photo management solution
+    - Options: Immich, PhotoPrism, Lychee, or reuse Phase 7 solution
+- [ ] Authentication & SSO integration
+- [ ] CrowdSec integration (if applicable)
+- [ ] Metrics and monitoring integration
+- [ ] Identify and add runtime data (photo libraries, metadata DB) to Phase 3 backup/restore scripts (**Critical — primary data store**)
+
+### Phase 9: Recipe Management
+- [ ] Evaluate and deploy recipe management solution
+    - Options: Mealie, Tandoor Recipes, Grocy
+- [ ] Authentication & SSO integration
+- [ ] CrowdSec integration (if applicable)
+- [ ] Metrics and monitoring integration
+- [ ] Identify and add runtime data (database, uploaded assets) to Phase 3 backup/restore scripts
+
+### Phase 10: DNS Sinkhole (Optional)
+- [ ] Evaluate and deploy DNS sinkhole
+    - Options: AdGuard Home, Pi-hole, Blocky, Technitium DNS Server
+- [ ] Authentication & SSO integration (if supported)
+- [ ] Metrics and monitoring integration
+- [ ] Identify and add runtime data (blocklists, config, queries if retained) to Phase 3 backup/restore scripts
+
+### Phase 11: Backup & Disaster Recovery
+- [ ] Select storage backend (ZFS, Btrfs, or external NAS/RAID)
+- [ ] Implement backup solution
+    - Use Restic or equivalent
+    - Integrate with Podman volumes (e.g. `podman volume export` → Restic)
+    - Ensure encryption and deduplication
+- [ ] Define backup scope
+    - OS configuration (MicroOS, ignition, etc.)
+    - Application configs
+    - All identified runtime data from Phases 4–10
+- [ ] Implement off-site backups (remote storage, S3-compatible, etc.)
+- [ ] Test restore procedures (full system + individual services)
+- [ ] Define retention policy (daily/weekly/monthly)
 
 
 
