@@ -67,8 +67,20 @@ Podman Volumes (runtime, not in git)
  - [ ] Backup script (Bash script to export podman volumes to ~/backups/)
  - [ ] Update Restore script to incorporate Backup output for volume restoration
 
-### Phase X: Backup
-  - [ ] Backup script using Restic (pipe `podman volume export` directly into Restic for encrypted, deduplicated backups)
+### Phase 4: Security (CrowdSec)
+- [ ] Replace firewalld with raw nftables.
+    - Write base nftables ruleset (SSH, Cockpit, HTTP, HTTPS, and HTTP/3).
+    - Verify rootless Podman networking still works.
+    - Remove firewalld package.
+- [ ] Install CrowdSec engine as a container, firewall bouncer on the host.
+- [ ] Configure collections: `traefik`, `http-cve`, `linux`, `sshd`.
+- [ ] SSH protection via firewall bouncer.
+- [ ] Traefik protection:
+    - [ ] Firewall bouncer (kernel-level blocking via nftables).
+    - [ ] Traefik Bouncer Plugin (application-level blocking, captcha, AppSec/WAF).
+    - [ ] Custom scenario to block IP-only / unknown SNI requests.
+- [ ] Whitelist own IPs to prevent self-banning during testing.
+- [ ] Evaluate CrowdSec Console — cloud dashboard + community blocklist.
 
 ### Phase X: Monitoring
  - [ ] Set up a monitoring stack to track OS health, container health, and service availability.
@@ -80,6 +92,9 @@ Podman Volumes (runtime, not in git)
     - **[prometheus-podman-exporter](https://github.com/containers/prometheus-podman-exporter)** — Container exposing Podman container state, health, and resource metrics on `:9882`.
     - **Health checks** — Add `HealthCmd` to every Quadlet `.container` file. Required for `podman auto-update --rollback` to detect and roll back broken images.
     - **[Traefik Metrics](https://doc.traefik.io/traefik/observability/metrics/prometheus/)** — Built-in Prometheus metrics on `:8080/metrics`, enabled with `metrics: prometheus: {}` in `traefik.yml`.
+
+### Phase X: Backup
+  - [ ] Backup script using Restic (pipe `podman volume export` directly into Restic for encrypted, deduplicated backups)
 
 
 
