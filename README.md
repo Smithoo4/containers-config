@@ -61,11 +61,20 @@ Podman Volumes (runtime, not in git)
  - [X] [quadlet-traefik-tutorial](https://github.com/Smithoo4/quadlet-traefik-tutorial)
 
 ### Phase 3: Configuration Management
- - [X]  Convert [quadlet-traefik-tutorial](https://github.com/Smithoo4/quadlet-traefik-tutorial) to a [containers-config](https://github.com/Smithoo4/containers-config) repo for further deployment
- - [ ] Add [SOPS](https://github.com/getsops/sops) for storing secrets
- - [ ] Restore script (Bash script to create symlinked, podman secrets, Volumes, etc.)
- - [ ] Backup script (Bash script to export podman volumes to ~/backups/)
- - [ ] Update Restore script to incorporate Backup output for volume restoration
+- [X] Convert [quadlet-traefik-tutorial](https://github.com/Smithoo4/quadlet-traefik-tutorial) to [containers-config](https://github.com/Smithoo4/containers-config) repo for further deployment
+- [ ] Add [SOPS](https://github.com/getsops/sops) for storing secrets (encrypted `vars.env` with config + secrets)
+- [ ] Convert Quadlet files to templates with `${DOMAIN}` variable substitution via `envsubst`
+- [ ] `bootstrap.sh` — single script that handles both first install and recovery:
+    - Decrypt `vars.env` in memory via `sops exec-env`
+    - Render Quadlet templates via `envsubst`
+    - Create/update Podman secrets (`--replace`) from SOPS
+    - Restore volumes from backup if present, otherwise initialize blank
+    - Create Podman networks
+    - `systemctl --user daemon-reload` and start/restart services
+- [ ] `backup.sh` — export Podman volumes and runtime data
+    - Export Podman volumes to `~/backups/` (e.g. `podman volume export`)
+    - Include metadata (volume names, timestamps)
+    - Compress backups (e.g. `zstd`)
 
 ### Phase 4: Security (CrowdSec)
 - [ ] Replace firewalld with raw nftables.
