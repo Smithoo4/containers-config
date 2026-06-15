@@ -79,6 +79,7 @@ Podman Volumes (runtime, not in git)
     - **[prometheus-node_exporter](https://github.com/prometheus/node_exporter)** - Already installed on the MicroOS base exposing OS metrics on `:9100`.
     - **[prometheus-podman-exporter](https://github.com/containers/prometheus-podman-exporter)** — Container exposing Podman container state, health, and resource metrics on `:9882`.
     - **Health checks** — Add `HealthCmd` to every Quadlet `.container` file. Required for `podman auto-update --rollback` to detect and roll back broken images.
+    - **[Traefik Metrics](https://doc.traefik.io/traefik/observability/metrics/prometheus/)** — Built-in Prometheus metrics on `:8080/metrics`, enabled with `metrics: prometheus: {}` in `traefik.yml`.
 
 
 
