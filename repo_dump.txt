@@ -1,280 +1,11 @@
-===== apps/traefik/dynamic/basic-auth.yml =====
-http:
-  middlewares:
-    basic-auth:
-      basicAuth:
-        users:
-          - "admin:$2a$10$BTTrYnNqG.L5KV9suzdsVuZqXylVJN7ui6Ud7cWmmJ0WQNluku45G"
-
-===== apps/traefik/dynamic/security-headers.yml =====
-http:
-  middlewares:
-    security-headers:
-      headers:
-        frameDeny: true
-        contentTypeNosniff: true
-        referrerPolicy: "strict-origin-when-cross-origin"
-        permissionsPolicy: "camera=(), microphone=(), geolocation=()"
-        stsSeconds: 63072000
-        stsIncludeSubdomains: true
-        forceSTSHeader: true
-        customResponseHeaders:
-          server: ""
-          X-Powered-By: ""
-
-===== apps/traefik/dynamic/tls-options.yml =====
-tls:
-  options:
-    default:
-      minVersion: VersionTLS13
-      sniStrict: true
-
-===== apps/traefik/traefik.yml =====
-# Global Configuration
-global:
-  checkNewVersion: true
-  sendAnonymousUsage: false
-
-# API and Dashboard
-api:
-  dashboard: true
-  insecure: false  # Dashboard is only accessible via Traefik routing
-
-# Metrics
-metrics:
-  prometheus: {}
-
-# Entry Points
-entryPoints:
-  web:
-    address: ":80"
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
-          permanent: true
-
-  websecure:
-    address: ":443"
-    http3: {}
-    http:
-      middlewares:
-        - security-headers@file
-      tls:
-        certResolver: letsencrypt
-
-# Certificate Resolvers
-certificatesResolvers:
-  letsencrypt:
-    acme:
-      storage: /acme/acme.json
-      caServer: https://acme-staging-v02.api.letsencrypt.org/directory  # Staging for testing
-      keyType: EC384
-      dnsChallenge:
-        provider: duckdns
-        delayBeforeCheck: 0
-        resolvers:
-          - "1.1.1.1:53"
-          - "8.8.8.8:53"
-
-# Providers
-providers:
-  docker:
-    endpoint: "unix:///var/run/podman/podman.sock"
-    exposedByDefault: false
-    network: proxy
-
-  file:
-    directory: /etc/traefik/dynamic
-    watch: true
-
-# Logging
-log:
-  level: WARN
-  format: common
-
-# Access Logs
-accessLog:
-  format: common
-
-===== apps/webapp/index.html =====
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>It Works!</title>
-  <style>
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .card {
-      text-align: center;
-      background: #1e293b;
-      padding: 50px;
-      border-radius: 16px;
-      animation: pulse 3s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 rgba(14,165,233,0.4); }
-      50% { box-shadow: 0 0 20px rgba(14,165,233,0.6); }
-      100% { box-shadow: 0 0 0 rgba(14,165,233,0.4); }
-    }
-    h1 { font-size: 2.5rem; }
-    p { margin: 10px 0; }
-    .emoji { font-size: 3rem; }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="emoji">🚀</div>
-    <h1>It's Alive!</h1>
-    <p><strong>smithoo4.duckdns.org</strong> is up and running 🎉</p>
-    
-    <p id="status"></p>
-
-    <p>🌐 <script>document.write(window.location.hostname)</script></p>
-    <p>🕒 <script>document.write(new Date().toLocaleString())</script></p>
-
-    <p style="font-size:0.8rem; opacity:0.6;">
-      Powered by homelab magic ✨
-    </p>
-  </div>
-
-  <script>
-    const messages = [
-      "All systems go ✅",
-      "Nothing is on fire 🔥 (good!)",
-      "Packets are flowing 🚿",
-      "TLS handshake successful 🤝"
-    ];
-    document.getElementById("status").innerText =
-      messages[Math.floor(Math.random() * messages.length)];
-  </script>
-</body>
-</html>
-
-===== apps/webapp/nginx.conf =====
-server {
-    listen 80;
-    server_name _;
-    
-    root /usr/share/nginx/html;
-    index index.html;
-    
-    location / {
-        try_files $uri $uri/ =404;
-    }
-    
-    # Security headers (Traefik adds global ones, but these are nginx-specific)
-    add_header X-Served-By "Nginx-Container" always;
-    
-    # Logging
-    access_log /var/log/nginx/access.log;
-    error_log /var/log/nginx/error.log;
-}
-
 ===== .gitignore =====
 # Exclude any files that might contain secrets in the future
 *.key
 *.pem
 
-===== quadlet/proxy.network =====
-[Network]
-NetworkName=proxy
-Driver=bridge
-
-===== quadlet/traefik.container =====
-[Unit]
-Description=Traefik Reverse Proxy
-Wants=network-online.target
-After=network-online.target
-RequiresMountsFor=%h/.config/containers/apps/traefik
-
-[Container]
-Image=docker.io/traefik:v3
-AutoUpdate=registry
-
-# Container Name
-ContainerName=traefik
-
-# Network
-Network=proxy
-
-# Published Ports
-PublishPort=80:80
-PublishPort=443:443
-PublishPort=443:443/udp
-
-# Volume Mounts
-Volume=%h/.config/containers/apps/traefik/traefik.yml:/etc/traefik/traefik.yml:ro,Z
-Volume=%h/.config/containers/apps/traefik/dynamic:/etc/traefik/dynamic:ro,Z
-Volume=traefik-acme:/acme:Z
-Volume=%t/podman/podman.sock:/var/run/podman/podman.sock:ro
-
-# Secrets
-Secret=duckdns_token,type=env,target=DUCKDNS_TOKEN
-
-# SELinux
-SecurityLabelDisable=true
-
-# Labels for Traefik Dashboard
-Label=traefik.enable=true
-Label=traefik.http.routers.dashboard.rule=Host(`traefik.smithoo4.duckdns.org`)
-Label=traefik.http.routers.dashboard.entrypoints=websecure
-Label=traefik.http.routers.dashboard.tls.certresolver=letsencrypt
-Label=traefik.http.routers.dashboard.service=api@internal
-Label=traefik.http.routers.dashboard.middlewares=basic-auth@file
-
-[Service]
-Restart=always
-TimeoutStartSec=900
-
-[Install]
-WantedBy=default.target
-
-===== quadlet/webapp.container =====
-[Unit]
-Description=Demo Web Application
-Wants=network-online.target
-After=network-online.target traefik.service
-RequiresMountsFor=%h/.config/containers/apps/webapp
-
-[Container]
-Image=docker.io/library/nginx:alpine
-AutoUpdate=registry
-
-# Container Name
-ContainerName=webapp
-
-# Network
-Network=proxy
-
-# Volume Mounts
-Volume=%h/.config/containers/apps/webapp/index.html:/usr/share/nginx/html/index.html:ro,Z
-Volume=%h/.config/containers/apps/webapp/nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
-
-# Traefik Labels
-Label=traefik.enable=true
-Label=traefik.http.routers.webapp.rule=Host(`webapp.smithoo4.duckdns.org`)
-Label=traefik.http.routers.webapp.entrypoints=websecure
-Label=traefik.http.routers.webapp.tls.certresolver=letsencrypt
-Label=traefik.http.services.webapp.loadbalancer.server.port=80
-
-[Service]
-Restart=always
-TimeoutStartSec=300
-
-[Install]
-WantedBy=default.target
+# Rendered output
+quadlet/
+apps/
 
 ===== README.md =====
 # containers-config
@@ -455,4 +186,305 @@ Podman Volumes (runtime, not in git)
 
 
 ===== repo_dump.txt =====
+
+===== templates/apps/traefik/dynamic/basic-auth.yml =====
+http:
+  middlewares:
+    basic-auth:
+      basicAuth:
+        users:
+          - "${BASIC_AUTH_USERS}"
+
+===== templates/apps/traefik/dynamic/security-headers.yml =====
+http:
+  middlewares:
+    security-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        permissionsPolicy: "camera=(), microphone=(), geolocation=()"
+        stsSeconds: 63072000
+        stsIncludeSubdomains: true
+        forceSTSHeader: true
+        customResponseHeaders:
+          server: ""
+          X-Powered-By: ""
+
+===== templates/apps/traefik/dynamic/tls-options.yml =====
+tls:
+  options:
+    default:
+      minVersion: VersionTLS13
+      sniStrict: true
+
+===== templates/apps/traefik/traefik.yml =====
+# Global Configuration
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+# API and Dashboard
+api:
+  dashboard: true
+  insecure: false  # Dashboard is only accessible via Traefik routing
+
+# Metrics
+metrics:
+  prometheus: {}
+
+# Entry Points
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+
+  websecure:
+    address: ":443"
+    http3: {}
+    http:
+      middlewares:
+        - security-headers@file
+      tls:
+        certResolver: letsencrypt
+
+# Certificate Resolvers
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      storage: /acme/acme.json
+      caServer: https://acme-staging-v02.api.letsencrypt.org/directory  # Staging for testing
+      keyType: EC384
+      dnsChallenge:
+        provider: duckdns
+        delayBeforeCheck: 0
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+
+# Providers
+providers:
+  docker:
+    endpoint: "unix:///var/run/podman/podman.sock"
+    exposedByDefault: false
+    network: proxy
+
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true
+
+# Logging
+log:
+  level: WARN
+  format: common
+
+# Access Logs
+accessLog:
+  format: common
+
+===== templates/apps/webapp/index.html =====
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>It Works!</title>
+        <style>
+            body {
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    sans-serif;
+                background: #0f172a;
+                color: #e2e8f0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+            }
+            .card {
+                text-align: center;
+                background: #1e293b;
+                padding: 50px;
+                border-radius: 16px;
+                animation: pulse 3s infinite;
+            }
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 0 rgba(14, 165, 233, 0.4);
+                }
+                50% {
+                    box-shadow: 0 0 20px rgba(14, 165, 233, 0.6);
+                }
+                100% {
+                    box-shadow: 0 0 0 rgba(14, 165, 233, 0.4);
+                }
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            p {
+                margin: 10px 0;
+            }
+            .emoji {
+                font-size: 3rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="emoji">🚀</div>
+            <h1>It's Alive!</h1>
+            <p>
+                <strong>${SUBDOMAIN}.${BASE_DOMAIN}</strong> is up and running
+                🎉
+            </p>
+
+            <p id="status"></p>
+
+            <p>
+                🌐
+                <script>
+                    document.write(window.location.hostname);
+                </script>
+            </p>
+            <p>
+                🕒
+                <script>
+                    document.write(new Date().toLocaleString());
+                </script>
+            </p>
+
+            <p style="font-size: 0.8rem; opacity: 0.6">
+                Powered by homelab magic ✨
+            </p>
+        </div>
+
+        <script>
+            const messages = [
+                "All systems go ✅",
+                "Nothing is on fire 🔥 (good!)",
+                "Packets are flowing 🚿",
+                "TLS handshake successful 🤝",
+            ];
+            document.getElementById("status").innerText =
+                messages[Math.floor(Math.random() * messages.length)];
+        </script>
+    </body>
+</html>
+
+===== templates/apps/webapp/nginx.conf =====
+server {
+    listen 80;
+    server_name _;
+    
+    root /usr/share/nginx/html;
+    index index.html;
+    
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    
+    # Security headers (Traefik adds global ones, but these are nginx-specific)
+    add_header X-Served-By "Nginx-Container" always;
+    
+    # Logging
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+}
+
+===== templates/quadlet/proxy.network =====
+[Network]
+NetworkName=proxy
+Driver=bridge
+
+===== templates/quadlet/traefik.container =====
+[Unit]
+Description=Traefik Reverse Proxy
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=%h/.config/containers/apps/traefik
+
+[Container]
+Image=docker.io/traefik:v3
+AutoUpdate=registry
+
+# Container Name
+ContainerName=traefik
+
+# Network
+Network=proxy
+
+# Published Ports
+PublishPort=80:80
+PublishPort=443:443
+PublishPort=443:443/udp
+
+# Volume Mounts
+Volume=%h/.config/containers/apps/traefik/traefik.yml:/etc/traefik/traefik.yml:ro,Z
+Volume=%h/.config/containers/apps/traefik/dynamic:/etc/traefik/dynamic:ro,Z
+Volume=traefik-acme:/acme:Z
+Volume=%t/podman/podman.sock:/var/run/podman/podman.sock:ro
+
+# Secrets
+Secret=duckdns_token,type=env,target=DUCKDNS_TOKEN
+
+# SELinux
+SecurityLabelDisable=true
+
+# Labels for Traefik Dashboard
+Label=traefik.enable=true
+Label=traefik.http.routers.dashboard.rule=Host(`traefik.${SUBDOMAIN}.${BASE_DOMAIN}`)
+Label=traefik.http.routers.dashboard.entrypoints=websecure
+Label=traefik.http.routers.dashboard.tls.certresolver=letsencrypt
+Label=traefik.http.routers.dashboard.service=api@internal
+Label=traefik.http.routers.dashboard.middlewares=basic-auth@file
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target
+
+===== templates/quadlet/webapp.container =====
+[Unit]
+Description=Demo Web Application
+Wants=network-online.target
+After=network-online.target traefik.service
+RequiresMountsFor=%h/.config/containers/apps/webapp
+
+[Container]
+Image=docker.io/library/nginx:alpine
+AutoUpdate=registry
+
+# Container Name
+ContainerName=webapp
+
+# Network
+Network=proxy
+
+# Volume Mounts
+Volume=%h/.config/containers/apps/webapp/index.html:/usr/share/nginx/html/index.html:ro,Z
+Volume=%h/.config/containers/apps/webapp/nginx.conf:/etc/nginx/conf.d/default.conf:ro,Z
+
+# Traefik Labels
+Label=traefik.enable=true
+Label=traefik.http.routers.webapp.rule=Host(`traefik.${SUBDOMAIN}.${BASE_DOMAIN}`)
+Label=traefik.http.routers.webapp.entrypoints=websecure
+Label=traefik.http.routers.webapp.tls.certresolver=letsencrypt
+Label=traefik.http.services.webapp.loadbalancer.server.port=80
+
+[Service]
+Restart=always
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target
 

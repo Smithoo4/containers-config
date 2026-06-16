@@ -20,7 +20,7 @@ Volume=%h/.config/containers/apps/webapp/nginx.conf:/etc/nginx/conf.d/default.co
 
 # Traefik Labels
 Label=traefik.enable=true
-Label=traefik.http.routers.webapp.rule=Host(`webapp.smithoo4.duckdns.org`)
+Label=traefik.http.routers.webapp.rule=Host(`traefik.${SUBDOMAIN}.${BASE_DOMAIN}`)
 Label=traefik.http.routers.webapp.entrypoints=websecure
 Label=traefik.http.routers.webapp.tls.certresolver=letsencrypt
 Label=traefik.http.services.webapp.loadbalancer.server.port=80

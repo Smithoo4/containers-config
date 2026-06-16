@@ -1,3 +1,7 @@
 # Exclude any files that might contain secrets in the future
 *.key
 *.pem
+
+# Rendered output
+quadlet/
+apps/

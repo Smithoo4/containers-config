@@ -33,7 +33,7 @@ SecurityLabelDisable=true
 
 # Labels for Traefik Dashboard
 Label=traefik.enable=true
-Label=traefik.http.routers.dashboard.rule=Host(`traefik.smithoo4.duckdns.org`)
+Label=traefik.http.routers.dashboard.rule=Host(`traefik.${SUBDOMAIN}.${BASE_DOMAIN}`)
 Label=traefik.http.routers.dashboard.entrypoints=websecure
 Label=traefik.http.routers.dashboard.tls.certresolver=letsencrypt
 Label=traefik.http.routers.dashboard.service=api@internal
