@@ -454,3 +454,26 @@ Podman Volumes (runtime, not in git)
 
 
 
+===== .sops.yaml =====
+keys:
+  - &admin age1v492u0esm92zy34e33xd9m7z4jt3v03j233ar75k5m7s0rlxes0sxadr2t
+  - &smithoo4 age1nfg7d6cja63ptmlxtgeluh8gg2r6exkva4xkvm3h4npp53f2wyjq6ewch9
+
+creation_rules:
+  - path_regex: vars\.env$
+    key_groups:
+      - age:
+          - *admin
+          - *smithoo4
+
+===== vars.env =====
+DUCKDNS_TOKEN=ENC[AES256_GCM,data:X1Fb0CXDm1mvIgscOGjY3P43suGWCm+o+YI64ZsUlIJOq17q,iv:HIor/iJGXu5QCfQ8wx1YCEqkQ22hKfjWbeXptYi35TE=,tag:A0r/0SNkiRhWaceDTtF5zg==,type:str]
+sops_age__list_0__map_enc=-----BEGIN AGE ENCRYPTED FILE-----\nYWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB3S3ZQelRQZEd3K0JVOGhV\nOXdtRHhIR3FxdVVmTTlrOEszWU5UdFVEcVcwCmtaVHR1QjFmNkVrK2V2Q3BNNVFU\ncWN1Mm1hemxjdmRtSDFNeVovYzFHSlkKLS0tIE1qU0lNc3hQL2ZGS3hlM2gxMDFG\naGwycmV2a2JXVGduSlN4MDUrQmtudkUKRQ5o6idvfL5rKHOCzdIQ75GC9OxgUdX7\nTBKX8PL4wERs+KDdZ3Rv4uZmd20sOazf8xsBy/JuqEPmw4AjdgpACA==\n-----END AGE ENCRYPTED FILE-----\n
+sops_age__list_0__map_recipient=age1v492u0esm92zy34e33xd9m7z4jt3v03j233ar75k5m7s0rlxes0sxadr2t
+sops_age__list_1__map_enc=-----BEGIN AGE ENCRYPTED FILE-----\nYWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB0TmhjUXErNWJoeVptMFNo\nY3EvNmYwQUZWRlFzNXFVdHNSUEl6RkpoRzMwCjlUaU4vemNqNDdhdGFGaXhCQ0J5\nYUIwREthNTFKK3N6RkVEeTh2MG1qNFEKLS0tIDZuYUhhM1h4QTdqZExXNU1NMG1N\nTHdDd0JvaGF0QmV4dEFVQ3phaHdFWTgKM4nfiEu4c70UrP5J9GHH44q0MaAYQ3Ks\nLdxU8M99nfLO0/VH0CvaIdKNFuknSr8b997LBO4klg9vacTqKcKxDw==\n-----END AGE ENCRYPTED FILE-----\n
+sops_age__list_1__map_recipient=age1nfg7d6cja63ptmlxtgeluh8gg2r6exkva4xkvm3h4npp53f2wyjq6ewch9
+sops_lastmodified=2026-06-17T01:19:27Z
+sops_mac=ENC[AES256_GCM,data:bAGArsDRvp3wb1udwo6HB+tf9NGuXWaYiZDsjbWn2obxOvs13dTvPcCMVlBZL6uLb32dk1aNpnp6tvFmNLHYXV6dZwGlMimnOPBx8/C+bVqDyses+y1dkGIkqi9dpRlJ9C7Kska7BLpk5eEdGublRZp9FnGsozMiHFhj+9McX8s=,iv:EgqtDGdt7zWCqFaZfZ+2Sg87GMdane9e6bHvg0Hwvec=,tag:tDU6621YqLTbYgubpiRlYQ==,type:str]
+sops_unencrypted_suffix=_unencrypted
+sops_version=3.13.1
+
