@@ -1,0 +1,10 @@
+keys:
+  - &admin age1v492u0esm92zy34e33xd9m7z4jt3v03j233ar75k5m7s0rlxes0sxadr2t
+  - &smithoo4 age1nfg7d6cja63ptmlxtgeluh8gg2r6exkva4xkvm3h4npp53f2wyjq6ewch9
+
+creation_rules:
+  - path_regex: vars\.env$
+    key_groups:
+      - age:
+          - *admin
+          - *smithoo4
