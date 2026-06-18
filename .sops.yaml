@@ -1,9 +1,9 @@
 keys:
   - &admin age1v492u0esm92zy34e33xd9m7z4jt3v03j233ar75k5m7s0rlxes0sxadr2t
-  - &smithoo4 age1nfg7d6cja63ptmlxtgeluh8gg2r6exkva4xkvm3h4npp53f2wyjq6ewch9
+  - &smithoo4 age1f7qy223lxhrvuce2r9ug0slfjckwum0ctaq8jt6kj9j400auzscqdn45s2
 
 creation_rules:
-  - path_regex: vars\.env$
+  - path_regex: secrets\.yaml$
     key_groups:
       - age:
           - *admin
