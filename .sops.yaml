@@ -1,6 +1,6 @@
 keys:
   - &admin age1v492u0esm92zy34e33xd9m7z4jt3v03j233ar75k5m7s0rlxes0sxadr2t
-  - &smithoo4 age1f7qy223lxhrvuce2r9ug0slfjckwum0ctaq8jt6kj9j400auzscqdn45s2
+  - &smithoo4 age1y6l9d0sxe4qmaeczsqxjmnemp6u5e9s5wm2l40qqp2y6jqyakpgs99etn3
 
 creation_rules:
   - path_regex: secrets\.yaml$
