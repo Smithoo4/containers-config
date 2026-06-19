@@ -12,7 +12,7 @@ AutoUpdate=registry
 ContainerName=webapp
 
 # Network
-Network=proxy
+Network=proxy.network
 
 # Volume Mounts
 Volume=%h/.config/containers/apps/webapp/index.html:/usr/share/nginx/html/index.html:ro,Z

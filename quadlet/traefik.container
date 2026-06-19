@@ -12,7 +12,7 @@ AutoUpdate=registry
 ContainerName=traefik
 
 # Network
-Network=proxy
+Network=proxy.network
 
 # Published Ports
 PublishPort=80:80
