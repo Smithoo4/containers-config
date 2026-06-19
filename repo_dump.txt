@@ -511,17 +511,38 @@ The host is [OpenSUSE MicroOS](https://microos.opensuse.org/), provisioned using
 ## Directory Structure
 
 ```
-containers-config/                  # Git repository for configuration backup
+containers-config/                  # Git repository for configuration and scripts
 ├── .git/
+├── .gitignore
+├── .sops.yaml                      # SOPS config: age recipients and creation rules
+├── secrets.yaml                    # Encrypted secrets (SOPS + age)
+├── bootstrap.sh                    # Sync secrets, create/restore volumes, symlink, daemon-reload
+├── backup.sh                       # Export Podman volumes to ~/backups/ as zstd tarballs
+├── README.md
+├── repo_dump.txt                   # Full repo snapshot (regenerated via `repodump` alias)
+│
 ├── quadlet/                        # Quadlet unit files (symlinked to ~/.config/containers/systemd)
-│   ├── *.network
-│   └── *.container
-├── apps/                           # Application configurations (symlinked to ~/.config/containers/apps)
-│   └── <app>/
-│       └── ...
-└── README.md
+│   ├── proxy.network
+│   ├── traefik.container
+│   └── webapp.container
+│
+└── apps/                           # Application configurations (symlinked to ~/.config/containers/apps)
+    ├── traefik/
+    │   ├── traefik.yml
+    │   └── dynamic/
+    │       ├── basic-auth.yml
+    │       ├── security-headers.yml
+    │       └── tls-options.yml
+    └── webapp/
+        ├── index.html
+        └── nginx.conf
 
-Podman Volumes (runtime, not in git)
+Runtime (not in git):
+  ~/.config/containers/systemd/     # Symlink -> containers-config/quadlet/
+  ~/.config/containers/apps/        # Symlink -> containers-config/apps/
+  ~/backups/                        # Timestamped Podman volume backups
+  Podman volumes                    # e.g. traefik-acme (managed by Podman)
+  Podman secrets                    # Synced from secrets.yaml
 ```
 
 **Why This Structure?**
@@ -539,6 +560,34 @@ Podman Volumes (runtime, not in git)
 
 ---
 
+## Bootstrap
+
+`bootstrap.sh` handles both first install and recovery. Safe to re-run — every step is idempotent.
+
+- Syncs Podman secrets from `secrets.yaml` (SOPS-encrypted).
+- Ensures Podman volumes exist; restores from latest `~/backups/` if missing, otherwise initializes blank.
+- Symlinks `quadlet/` and `apps/` into `~/.config/containers/`.
+- Runs `systemctl --user daemon-reload`.
+
+```bash
+./bootstrap.sh                    # normal
+SKIP_RESTORE=1 ./bootstrap.sh     # force blank init, skip restore
+```
+
+---
+
+## Backup
+
+`backup.sh` exports declared Podman volumes to `~/backups/<timestamp>/` as zstd-compressed tarballs, with a `manifest.txt` summary.
+
+```bash
+./backup.sh
+```
+
+Restore is automatic on the next `bootstrap.sh` run when a volume is missing.
+
+---
+
 ## Roadmap & Implementation
 
 ### Phase 1: Host OS
@@ -551,12 +600,12 @@ Podman Volumes (runtime, not in git)
 ### Phase 3: Configuration Management
 - [X] Convert [quadlet-traefik-tutorial](https://github.com/Smithoo4/quadlet-traefik-tutorial) to [containers-config](https://github.com/Smithoo4/containers-config) repo for further deployment
 - [X] Add [SOPS](https://github.com/getsops/sops) for storing secrets (encrypted `secrets.yaml` with config + secrets)
-- [ ] `bootstrap.sh` — single script that handles both first install and recovery:
+- [x] `bootstrap.sh` — single script that handles both first install and recovery:
     - Create/update Podman secrets (`--replace`) from SOPS
     - Restore volumes from backup if present, otherwise initialize blank
     - Create Podman networks
     - `systemctl --user daemon-reload` and start/restart services
-- [ ] `backup.sh` — export Podman volumes and runtime data
+- [x] `backup.sh` — export Podman volumes and runtime data
     - Export Podman volumes to `~/backups/` (e.g. `podman volume export`)
     - Include metadata (volume names, timestamps)
     - Compress backups (e.g. `zstd`)
@@ -654,11 +703,6 @@ Podman Volumes (runtime, not in git)
 - [ ] Implement off-site backups (remote storage, S3-compatible, etc.)
 - [ ] Test restore procedures (full system + individual services)
 - [ ] Define retention policy (daily/weekly/monthly)
-
-
-
-
-
 
 ===== secrets.yaml =====
 duckdns_token: ENC[AES256_GCM,data:0uVJ8dUlWWKEzWPQ35obUN5X2abJtJ+DaseSjswRvJNAkKke,iv:piJx9guFysE+i5WwciIYqFARzFpcIaLkdJ/FEmAPcco=,tag:y+koyGUcZtjj8OjFU7A2cw==,type:str]
