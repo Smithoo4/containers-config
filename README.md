@@ -123,7 +123,7 @@ Restore is automatic on the next `bootstrap.sh` run when a volume is missing.
     - Compress backups (e.g. `zstd`)
 
 ### Phase 4: Security (CrowdSec)
-- [ ] Replace firewalld with raw nftables.
+- [X] Replace firewalld with raw nftables.
     - Write base nftables ruleset (SSH, Cockpit, HTTP, HTTPS, and HTTP/3).
     - Verify rootless Podman networking still works.
     - Remove firewalld package.
