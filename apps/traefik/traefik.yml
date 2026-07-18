@@ -41,7 +41,7 @@ certificatesResolvers:
       keyType: EC384
       dnsChallenge:
         provider: duckdns
-        delayBeforeCheck: 0
+        delayBeforeCheck: 0s
         resolvers:
           - "1.1.1.1:53"
           - "8.8.8.8:53"
