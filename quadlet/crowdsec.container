@@ -13,6 +13,9 @@ Network=proxy.network
 # LAPI — loopback only (host firewall bouncer connects here)
 PublishPort=127.0.0.1:8080:8080
 
+# Syslog listener — rsyslog forwards auth,authpriv here (host loopback only)
+PublishPort=127.0.0.1:514:514/udp
+
 # SSH detection collections
 Environment=COLLECTIONS=crowdsecurity/linux crowdsecurity/sshd
 
@@ -22,12 +25,6 @@ Volume=crowdsec-db:/var/lib/crowdsec/data
 
 # Declarative acquisition config
 Volume=%h/.config/containers/apps/crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml:ro,Z
-
-# Host SSH auth log (read-only) — the dedicated rsyslog file
-Volume=/var/log/crowdsec:/var/log/crowdsec:ro
-
-# SELinux
-SecurityLabelDisable=true
 
 # Health
 HealthCmd=cscli lapi status
