@@ -1,0 +1,41 @@
+[Unit]
+Description=CrowdSec Security Engine
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=%h/.config/containers/apps/crowdsec
+
+[Container]
+Image=docker.io/crowdsecurity/crowdsec:latest
+AutoUpdate=registry
+ContainerName=crowdsec
+Network=proxy.network
+
+# LAPI — loopback only (host firewall bouncer connects here)
+PublishPort=127.0.0.1:8080:8080
+
+# SSH detection collections
+Environment=COLLECTIONS=crowdsecurity/linux crowdsecurity/sshd
+
+# Persisted runtime state (config holds registered bouncer keys + LAPI creds)
+Volume=crowdsec-config:/etc/crowdsec
+Volume=crowdsec-db:/var/lib/crowdsec/data
+
+# Declarative acquisition config
+Volume=%h/.config/containers/apps/crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml:ro,Z
+
+# Host SSH auth log (read-only) — the dedicated rsyslog file
+Volume=/var/log/crowdsec:/var/log/crowdsec:ro
+
+# SELinux
+SecurityLabelDisable=true
+
+# Health
+HealthCmd=cscli lapi status
+HealthInterval=30s
+
+[Service]
+Restart=always
+TimeoutStartSec=300
+
+[Install]
+WantedBy=default.target
