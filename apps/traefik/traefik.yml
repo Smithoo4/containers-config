@@ -57,6 +57,9 @@ providers:
     directory: /etc/traefik/dynamic
     watch: true
 
+# healthcheck
+ping: {}
+
 # Logging
 log:
   level: WARN

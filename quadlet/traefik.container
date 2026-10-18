@@ -31,6 +31,13 @@ Secret=duckdns_token,type=env,target=DUCKDNS_TOKEN
 # SELinux
 SecurityLabelDisable=true
 
+# Health Check
+HealthCmd=traefik healthcheck
+HealthInterval=30s
+HealthTimeout=5s
+HealthRetries=3
+HealthStartPeriod=10s
+
 # Labels for Traefik Dashboard
 Label=traefik.enable=true
 Label=traefik.http.routers.dashboard.rule=Host(`traefik.smithoo4.duckdns.org`)
