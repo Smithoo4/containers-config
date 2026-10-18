@@ -25,6 +25,13 @@ Label=traefik.http.routers.webapp.entrypoints=websecure
 Label=traefik.http.routers.webapp.tls.certresolver=letsencrypt
 Label=traefik.http.services.webapp.loadbalancer.server.port=80
 
+# Health Check
+HealthCmd=curl -f http://localhost/ || exit 1
+HealthInterval=30s
+HealthTimeout=5s
+HealthRetries=3
+HealthStartPeriod=10s
+
 [Service]
 Restart=always
 TimeoutStartSec=300
